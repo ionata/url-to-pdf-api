@@ -88,7 +88,7 @@ async function render(_opts = {}) {
   this.failedResponses = [];
   page.on('requestfailed', (request) => {
     this.failedResponses.push(request);
-    if (ex.responseUrl(request) === opts.url) {
+    if (!this.mainUrlResponse && ex.responseUrl(request) === opts.url) {
       this.mainUrlResponse = request;
     }
   });
@@ -145,7 +145,7 @@ async function render(_opts = {}) {
     if (this.failedResponses.length) {
       logger.warn(`Number of failed requests: ${this.failedResponses.length}`);
       this.failedResponses.forEach((response) => {
-        logger.warn(`${ex.responseStatus(response)} ${ex.responseUrl(response)}`);
+        logger.warn(`${ex.responseStatus(response) || '[request]'} ${ex.responseUrl(response)}`);
       });
 
       if (opts.failEarly === 'all') {
@@ -155,7 +155,7 @@ async function render(_opts = {}) {
         throw err;
       }
     }
-    if (opts.failEarly === 'page' && ex.responseStatus(this.mainUrlResponse) !== 200) {
+    if (opts.failEarly === 'page' && ex.responseStatus(this.mainUrlResponse) && ex.responseStatus(this.mainUrlResponse) !== 200) {
       const msg = `Request for ${opts.url} did not directly succeed and returned status ${ex.responseStatus(this.mainUrlResponse)}`;
       const err = new Error(msg);
       err.code = 'failEarly';
