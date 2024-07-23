@@ -2,6 +2,7 @@ const puppeteer = require('puppeteer');
 const _ = require('lodash');
 const config = require('../config');
 const logger = require('../util/logger')(__filename);
+const ex = require('../util/express');
 
 
 async function createBrowser(opts) {
@@ -93,11 +94,11 @@ async function render(_opts = {}) {
   });
 
   page.on('response', (response) => {
-    if (response.status >= 400) {
+    if (ex.responseStatus(response) >= 400) {
       this.failedResponses.push(response);
     }
 
-    if (response.url === opts.url) {
+    if (ex.responseUrl(response) === opts.url) {
       this.mainUrlResponse = response;
     }
   });
@@ -141,7 +142,7 @@ async function render(_opts = {}) {
     if (this.failedResponses.length) {
       logger.warn(`Number of failed requests: ${this.failedResponses.length}`);
       this.failedResponses.forEach((response) => {
-        logger.warn(`${response.status} ${response.url}`);
+        logger.warn(`${ex.responseStatus(response)} ${ex.responseUrl(response)}`);
       });
 
       if (opts.failEarly === 'all') {
@@ -150,10 +151,11 @@ async function render(_opts = {}) {
         throw err;
       }
     }
-    if (opts.failEarly === 'page' && this.mainUrlResponse.status !== 200) {
-      const msg = `Request for ${opts.url} did not directly succeed and returned status ${this.mainUrlResponse.status}`;
+    if (opts.failEarly === 'page' && ex.responseStatus(this.mainUrlResponse) !== 200) {
+      const msg = `Request for ${opts.url} did not directly succeed and returned status ${ex.responseStatus(this.mainUrlResponse)}`;
       const err = new Error(msg);
-      err.status = 412;
+      err.code = 'failEarly';
+      err.status = ex.responseStatus(this.mainUrlResponse);
       throw err;
     }
 

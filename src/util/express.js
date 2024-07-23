@@ -50,8 +50,19 @@ function throwStatus(status, message) {
   throw err;
 }
 
+
+function responseStatus(response) {
+  return typeof response.status === 'function' ? response.status() : response.status;
+}
+
+function responseUrl(response) {
+  return typeof response.url === 'function' ? response.url() : response.url;
+}
+
 module.exports = {
   createRoute,
   createJsonRoute,
   throwStatus,
+  responseStatus,
+  responseUrl,
 };
