@@ -88,7 +88,7 @@ async function render(_opts = {}) {
   this.failedResponses = [];
   page.on('requestfailed', (request) => {
     this.failedResponses.push(request);
-    if (request.url === opts.url) {
+    if (ex.responseUrl(request) === opts.url) {
       this.mainUrlResponse = request;
     }
   });
