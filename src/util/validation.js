@@ -63,6 +63,10 @@ const sharedQuerySchema = Joi.object({
   'screenshot.clip.height': Joi.number(),
   'screenshot.selector': Joi.string().regex(/(#|\.).*/),
   'screenshot.omitBackground': Joi.boolean(),
+  failEarly: Joi.alternatives([
+    Joi.boolean(),
+    Joi.string().valid(['all', 'page']),
+  ]),
 });
 
 const renderQuerySchema = Joi.object({
@@ -126,7 +130,10 @@ const renderBodyObject = Joi.object({
     selector: Joi.string().regex(/(#|\.).*/),
     omitBackground: Joi.boolean(),
   }),
-  failEarly: Joi.string(),
+  failEarly: Joi.alternatives([
+    Joi.boolean(),
+    Joi.string().valid(['all', 'page']),
+  ]),
 });
 
 const renderBodySchema = Joi.alternatives([
