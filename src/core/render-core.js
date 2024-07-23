@@ -147,6 +147,7 @@ async function render(_opts = {}) {
 
       if (opts.failEarly === 'all') {
         const err = new Error(`${this.failedResponses.length} requests have failed. See server log for more details.`);
+        err.code = 'failEarly';
         err.status = 412;
         throw err;
       }

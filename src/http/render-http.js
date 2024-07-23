@@ -67,6 +67,14 @@ const postRender = ex.createRoute((req, res) => {
       }
       res.set('content-type', getMimeType(opts));
       res.send(data);
+    })
+    .catch((err) => {
+      if (err && err.code === 'failEarly' && err.status < 400) {
+        // --- We'll change the status code if it is below 400
+        res.set('x-response-status', `${err.status}`);
+        ex.throwStatus(412, err.message);
+      }
+      throw err;
     });
 });
 
